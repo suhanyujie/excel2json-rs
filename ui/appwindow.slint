@@ -1,0 +1,20 @@
+import { Button, VerticalBox } from "std-widgets.slint";
+
+export component AppWindow inherits Window {
+    in-out property<int> counter: 42;
+    callback request-increase-value();
+    callback select-dir();
+    
+    VerticalBox {
+        Text {
+            text: "Counter: \{root.counter}";
+        }
+        Button {
+            text: "选择文件";
+            clicked => {
+                // root.request-increase-value();
+                root.select-dir();
+            }
+        }
+    }
+}

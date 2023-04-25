@@ -8,6 +8,7 @@ export component AppWindow inherits Window {
     in-out property<string> dir: "~";
     callback request-increase-value();
     callback select-dir();
+    callback start-convert();
     
     VerticalBox {
         Text {
@@ -22,6 +23,9 @@ export component AppWindow inherits Window {
         }
         Button {
             text: "确认转换";
+            clicked => {
+                root.select-dir();
+            }
         }
     }
 }

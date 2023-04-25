@@ -1,15 +1,18 @@
 use std::path::PathBuf;
 
 use super::AppWindow;
+use futures::FutureExt;
 use slint::{ComponentHandle, SharedString};
 use tokio::{
     runtime::Handle,
     sync::mpsc::{UnboundedReceiver, UnboundedSender},
 };
 
+#[derive(Debug)]
 pub enum Message {
     Quit,
     ShowOpenDialog,
+    StartConvert,
     PackageSelected(SharedString),
 }
 
@@ -46,8 +49,49 @@ async fn worker_loop(
     mut r: UnboundedReceiver<Message>,
     handle: slint::Weak<AppWindow>,
 ) -> tokio::io::Result<()> {
-    let default_dir = ();
-    // futures::pin_mut!();
+    loop {
+        let m = futures::select! {
+            m = r.recv().fuse() => {
+                match m {
+                    None => {
+                        return Ok(())
+                    }
+                    Some(m) => m,
+                }
+            }
+        };
+
+        match m {
+            Message::ShowOpenDialog => {
+                println!("message: show file picker...");
+
+                let mut dialog = rfd::FileDialog::new();
+                dialog = dialog.set_title("选择目录");
+                let new_dir = match dialog.pick_folder() {
+                    Some(new_dir) => new_dir.into(),
+                    None => default_dir(),
+                };
+
+                handle
+                    .clone()
+                    .upgrade_in_event_loop(move |h| {
+                        h.set_dir(new_dir.to_str().unwrap().into());
+                    })
+                    .unwrap();
+            }
+            Message::StartConvert => {
+                // todo
+                println!("message: start convert to json file...");
+            }
+            Message::Quit => {
+                return Ok(());
+            }
+            _ => {
+                println!("message: unknown message...")
+            }
+        }
+    }
+
     Ok(())
 }
 

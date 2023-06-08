@@ -5,14 +5,22 @@ export component AppWindow inherits Window {
     height: 320px;
 
     in-out property<int> counter: 42;
-    in-out property<string> dir: "~";
+    in-out property<string> input_dir: "~";
+    in-out property<string> output_dir: "~/output/";
+    in-out property<string> tip_text: "欢迎使用";
     callback request-increase-value();
     callback select-dir();
     callback start-convert();
     
     VerticalBox {
         Text {
-            text: "选择目录：\{dir}";
+            text: "提示信息：\{tip_text}";
+        }
+        Text {
+            text: "选择转换的目录：\{input_dir}";
+        }
+        Text {
+            text: "选择输出目录：\{output_dir}";
         }
         Button {
             text: "选择目录：";
@@ -24,8 +32,9 @@ export component AppWindow inherits Window {
         Button {
             text: "确认转换";
             clicked => {
-                root.select-dir();
+                root.start-convert();
             }
         }
     }
 }
+

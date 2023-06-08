@@ -12,6 +12,7 @@ use tokio::{
 pub enum Message {
     Quit,
     ShowOpenDialog,
+    ShowOpenDialogForOutput,
     StartConvert,
     PackageSelected(SharedString),
 }
@@ -63,10 +64,10 @@ async fn worker_loop(
 
         match m {
             Message::ShowOpenDialog => {
-                println!("message: show file picker...");
+                println!("message: show input dir picker...");
 
                 let mut dialog = rfd::FileDialog::new();
-                dialog = dialog.set_title("选择目录");
+                dialog = dialog.set_title("选择输入目录");
                 let new_dir = match dialog.pick_folder() {
                     Some(new_dir) => new_dir.into(),
                     None => default_dir(),
@@ -75,7 +76,24 @@ async fn worker_loop(
                 handle
                     .clone()
                     .upgrade_in_event_loop(move |h| {
-                        h.set_dir(new_dir.to_str().unwrap().into());
+                        h.set_input_dir(new_dir.to_str().unwrap().into());
+                    })
+                    .unwrap();
+            }
+            Message::ShowOpenDialogForOutput => {
+                println!("message: show output dir picker...");
+
+                let mut dialog = rfd::FileDialog::new();
+                dialog = dialog.set_title("选择输出目录");
+                let new_dir = match dialog.pick_folder() {
+                    Some(new_dir) => new_dir.into(),
+                    None => default_dir(),
+                };
+
+                handle
+                    .clone()
+                    .upgrade_in_event_loop(move |h| {
+                        h.set_output_dir(new_dir.to_str().unwrap().into());
                     })
                     .unwrap();
             }

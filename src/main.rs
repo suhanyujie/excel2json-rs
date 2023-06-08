@@ -4,6 +4,7 @@ mod generate_code {
 pub use generate_code::*;
 use worker::Worker;
 
+mod convert;
 mod worker;
 
 fn main() -> Result<(), slint::PlatformError> {
